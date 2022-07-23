@@ -1,0 +1,11 @@
+name: FinalMarket
+version: '${project.version}'
+main: dev.ender.finalmarket.FinalMarket
+api-version: 1.18
+authors: [ Ender, RurdCrod ]
+
+commands:
+  suicide:
+    aliases:
+      - a
+    usage: /suicide 自杀 必须由玩家执行

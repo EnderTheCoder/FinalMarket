@@ -1,6 +1,8 @@
 package dev.ender.finalmarket.database;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -9,15 +11,17 @@ public class SQLite {
     private Connection connection = null;
     private PreparedStatement statement = null;
 
+    private static HashMap<String, String> REQUIRED_TABLES;
 
-    public void connect() {
+    public SQLite connect() {
         try {
             Class.forName("org.sqlite.JDBC");
             //如果没有数据库文件的话会自动创建
-            this.connection = DriverManager.getConnection("jdbc:sqlite:./plugins/Miner/data.db");
+            this.connection = DriverManager.getConnection("jdbc:sqlite:./plugins/FinalMarket/data.db");
         } catch (Exception e) {
             getLogger().severe(e.getClass().getName() + ": " + e.getMessage());
         }
+        return this;
     }
 
     public Connection getConnection() {
@@ -31,59 +35,64 @@ public class SQLite {
         return connection;
     }
 
-    public void prepare(String sql) {
+    public SQLite prepare(String sql) {
         try {
             statement = getConnection().prepareStatement(sql);
         } catch (SQLException e) {
             getLogger().severe("预处理SQL语句时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
 
-    public void bindString(int number, String value) {
+    public SQLite bindString(int number, String value) {
         try {
             statement.setString(number, value);
         } catch (SQLException e) {
             getLogger().severe("绑定参数时时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
 
-    public void bindInt(int number, int value) {
+    public SQLite bindInt(int number, int value) {
         try {
             statement.setInt(number, value);
         } catch (SQLException e) {
             getLogger().severe("绑定参数时时发生错误");
             e.printStackTrace();
         }
-
+        return this;
     }
 
-    public void bindDouble(int number, double value) {
+    public SQLite bindDouble(int number, double value) {
         try {
             statement.setDouble(number, value);
         } catch (SQLException e) {
             getLogger().severe("绑定参数时时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
 
-    public void bindLong(int number, long value) {
+    public SQLite bindLong(int number, long value) {
         try {
             statement.setLong(number, value);
         } catch (SQLException e) {
             getLogger().severe("绑定参数时时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
 
-    public void execute() {
+    public SQLite execute() {
         try {
             statement.execute();
         } catch (SQLException e) {
             getLogger().severe("执行SQL语句时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
 
     public ResultSet result() {
@@ -95,7 +104,7 @@ public class SQLite {
             return null;
         }
     }
-    public void close() {
+    public SQLite close() {
         //计算数据库查询所用时间并输出调试信息
         Timestamp endTime = new Timestamp(System.currentTimeMillis());
 
@@ -108,8 +117,38 @@ public class SQLite {
             getLogger().severe("关闭数据库连接时发生错误");
             e.printStackTrace();
         }
+        return this;
     }
-    public boolean isTableExists(String tableName) {
+
+    public static void setRequiredTables() {
+        SQLite.REQUIRED_TABLES = new HashMap<>();
+        SQLite.REQUIRED_TABLES.put("market_item", "create table market_item\n" +
+                "(\n" +
+                "    type     TEXT,\n" +
+                "    metadata TEXT,\n" +
+                "    amount   INTEGER,\n" +
+                "    price    REAL,\n" +
+                "    id       INTEGER not null\n" +
+                "        constraint market_item_pk\n" +
+                "            primary key autoincrement\n" +
+                ");\n" +
+                "\n");
+        SQLite.REQUIRED_TABLES.put("deal_record" , "create table deal_record\n" +
+                "(\n" +
+                "    id          INTEGER not null\n" +
+                "        constraint deal_record_pk\n" +
+                "            primary key autoincrement,\n" +
+                "    player_uuid TEXT,\n" +
+                "    amount      INTEGER,\n" +
+                "    costs       REAL,\n" +
+                "    time        INTEGER\n" +
+                ");\n" +
+                "\n" +
+                "create unique index deal_record_id_uindex\n" +
+                "    on deal_record (id);");
+    }
+
+    private static boolean isTableExists(String tableName) {
         SQLite s = new SQLite();
         s.prepare("SELECT * FROM sqlite_master WHERE type='table' AND name = ?");
         s.bindString(1, tableName);
@@ -124,26 +163,19 @@ public class SQLite {
             return false;
         }
     }
-    public void initTable() {
+    public static void initTable() {
+
+        setRequiredTables();
+
         SQLite s = new SQLite();
-        s.prepare("create table mine_area\n" +
-                "(\n" +
-                "    name    TEXT,\n" +
-                "    start_x INTEGER,\n" +
-                "    start_y INTEGER,\n" +
-                "    start_z INTEGER,\n" +
-                "    end_x   INTEGER,\n" +
-                "    end_y   INTEGER,\n" +
-                "    end_z   INTEGER,\n" +
-                "    world   TEXT,\n" +
-                "    spawn_x REAL,\n" +
-                "    spawn_y REAL,\n" +
-                "    spawn_z REAL\n" +
-                ");\n" +
-                "\n" +
-                "create unique index mine_area_name_uindex\n" +
-                "    on mine_area (name);");
-        s.execute();
+
+        for (String key : REQUIRED_TABLES.keySet()) {
+            if (!isTableExists(key)) {
+                s.prepare(REQUIRED_TABLES.get(key));
+                s.execute();
+            }
+        }
+
         s.close();
     }
 }

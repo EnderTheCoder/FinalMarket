@@ -8,11 +8,27 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 public class Cache {
-    public static HashMap<Integer, MarketItem> MARKET_ITEMS = new HashMap<>();
-    public static HashMap<Integer, DealRecord> DEAL_RECORDS = new HashMap<>();
+    private static final HashMap<Integer, MarketItem> MARKET_ITEMS = new HashMap<>();
 
+    private static final HashMap<Integer, DealRecord> DEAL_RECORDS = new HashMap<>();
 
-    public static void saveMarketItem(MarketItem item) {
+    private static void deleteMarketItem(Integer id) {
+        SQLite s = new SQLite();
+        s.prepare("DELETE FROM market_item WHERE id = ?")
+                .bindInt(1, id)
+                .execute()
+                .close();
+    }
+
+    private static void deleteDealRecord(Integer id) {
+        SQLite s = new SQLite();
+        s.prepare("DELETE FROM deal_record WHERE id = ?")
+                .bindInt(1, id)
+                .execute()
+                .close();
+    }
+
+    private static void saveMarketItem(MarketItem item) {
         SQLite s = new SQLite();
 
         try {
@@ -49,12 +65,68 @@ public class Cache {
 
     }
 
+
+    //add
+    //remove
+    //get
+
+    public static void removeMarketItem(MarketItem marketItem) {
+        MARKET_ITEMS.put(marketItem.id, null);
+    }
+    public static void removeDealRecord(DealRecord dealRecord){
+        DEAL_RECORDS.put(dealRecord.id , null);
+    }
+
+    public void addMarketItem (MarketItem marketItem){
+        MARKET_ITEMS.put(marketItem.id, marketItem);
+    }
+
+    public void addDealRecord(DealRecord dealRecord){
+        DEAL_RECORDS.put(dealRecord.id , dealRecord);
+    }
+
+    public void getMarketItem(Integer id) {
+        MARKET_ITEMS.get(id);
+    }
+
+    public void getDealRecord(Integer id){
+        DEAL_RECORDS.get(id);
+    }
+
+    public HashMap<Integer, MarketItem> getMarketItems() {
+        return MARKET_ITEMS;
+    }
+
+    public HashMap<Integer , DealRecord> getDealRecords(){
+        return DEAL_RECORDS;
+    }
+
     public static void saveAll() {
         for (Integer key : MARKET_ITEMS.keySet()) {
-            saveMarketItem(MARKET_ITEMS.get(key));
+
+//            // remove value
+//            MARKET_ITEMS.put(key, null);
+//            // remove key and value
+//            MARKET_ITEMS.remove(key);
+//            //null
+//            MARKET_ITEMS.get(key);
+
+            MarketItem item = MARKET_ITEMS.get(key);
+            if (item == null) {
+                DEAL_RECORDS.remove(key);
+                deleteMarketItem(key);
+            } else {
+                saveMarketItem(MARKET_ITEMS.get(key));
+            }
         }
         for (Integer key : DEAL_RECORDS.keySet()) {
-            saveDealRecord(DEAL_RECORDS.get(key));
+            DealRecord record = DEAL_RECORDS.get(key);
+            if (record == null) {
+                DEAL_RECORDS.remove(key);
+                deleteDealRecord(key);
+            } else {
+                saveDealRecord(DEAL_RECORDS.get(key));
+            }
         }
     }
 }

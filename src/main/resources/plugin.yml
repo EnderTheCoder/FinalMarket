@@ -5,7 +5,8 @@ api-version: 1.18
 authors: [ Ender, RurdCrod ]
 
 commands:
-  suicide:
+  finalmarket:
+    usage: Open shop command gui. This can only be executed on client side.
+    permission-message: you dont have the permission to open the gui.
     aliases:
-      - a
-    usage: /suicide 自杀 必须由玩家执行
+      - fmarket

@@ -148,18 +148,14 @@ public class SQLite {
                 "    on deal_record (id);");
     }
 
-    private static boolean isTableExists(String tableName) {
-        SQLite s = new SQLite();
+    private static boolean isTableExists(String tableName, SQLite s) {
         s.prepare("SELECT * FROM sqlite_master WHERE type='table' AND name = ?");
         s.bindString(1, tableName);
         s.execute();
         ResultSet resultSet = s.result();
         try {
-            boolean res = resultSet.next();
-            s.close();
-            return res;
+            return resultSet.next();
         } catch (SQLException e) {
-            s.close();
             return false;
         }
     }
@@ -170,7 +166,7 @@ public class SQLite {
         SQLite s = new SQLite();
 
         for (String key : REQUIRED_TABLES.keySet()) {
-            if (!isTableExists(key)) {
+            if (!isTableExists(key, s)) {
                 s.prepare(REQUIRED_TABLES.get(key));
                 s.execute();
             }

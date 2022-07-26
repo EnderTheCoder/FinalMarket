@@ -61,8 +61,33 @@ public class Cache {
 
     }
 
-    public static void saveDealRecord(DealRecord dealRecord) {
-
+    private static void saveDealRecord(DealRecord dealRecord) {
+        SQLite s = new SQLite();
+        try {
+            ResultSet rs = s.prepare("SELECT FROM deal_record WHERE id = ?")
+                    .bindInt(1, dealRecord.id)
+                    .execute()
+                    .result();
+            if (rs.next()) {
+                s.prepare("update deal_record SET player_uuid = ? amount = ? costs = ? time = ? where id =?")
+                        .bindString(1, dealRecord.player.getUniqueId().toString())
+                        .bindInt(2, dealRecord.amount)
+                        .bindDouble(3, dealRecord.costs)
+                        .bindLong(4, dealRecord.time)
+                        .execute();
+            } else {
+                s.prepare("insert into  deal_record values (player_uuid , amount , costs , time) VALUES (? , ? , ? , ?)")
+                        .bindString(1, dealRecord.player.getUniqueId().toString())
+                        .bindInt(2, dealRecord.amount)
+                        .bindDouble(3, dealRecord.costs)
+                        .bindLong(4, dealRecord.time)
+                        .execute();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            s.close();
+        }
+        s.close();
     }
 
 
@@ -103,13 +128,6 @@ public class Cache {
 
     public static void saveAll() {
         for (Integer key : MARKET_ITEMS.keySet()) {
-
-//            // remove value
-//            MARKET_ITEMS.put(key, null);
-//            // remove key and value
-//            MARKET_ITEMS.remove(key);
-//            //null
-//            MARKET_ITEMS.get(key);
 
             MarketItem item = MARKET_ITEMS.get(key);
             if (item == null) {

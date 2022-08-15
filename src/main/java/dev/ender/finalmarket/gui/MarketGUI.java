@@ -1,17 +1,19 @@
 package dev.ender.finalmarket.gui;
 
-import org.bukkit.Bukkit;
+import dev.ender.finalmarket.MarketItem;
+import dev.ender.finalmarket.database.Cache;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MarketGUI extends AbstractGUI {
+
+    public Integer marketPage = 0;
+
     public MarketGUI(Player player) {
         super(player, "FinalMarket", 54);
         this.setButton(0, new ItemStack(Material.FIREWORK_ROCKET))
@@ -23,9 +25,39 @@ public class MarketGUI extends AbstractGUI {
 
     }
 
+    @Override
+    public MarketGUI create() {
+
+        int i = 9;
+        for (MarketItem marketItem : getPageData(this.marketPage)) {
+            super.setButton(i, marketItem.item);
+            i++;
+        }
+        return (MarketGUI) super.create();
+    }
+
+    private List<MarketItem> getPageData(Integer page) {
+        HashMap<Integer, MarketItem> allCachedData = Cache.getMarketItems();
+        List<MarketItem> pagedItems = new ArrayList<>();
+
+        int startId = (page - 1) * 45;
+        int endId;
+        if (startId + 44 > allCachedData.size() - 1)    {
+            endId = allCachedData.size() - 1;
+        } else {
+            endId = startId + 44;
+        }
+        for (Integer id : allCachedData.keySet()) {
+            if (id >= startId && id <= endId) {
+                pagedItems.add(allCachedData.get(id));
+            }
+        }
+        return pagedItems;
+    }
+
     //buy
     @Override
-    public MarketGUI leftClick(Integer pos) {
+    public void leftClick(Integer pos) {
 
         //before page
         if (pos == 0) {
@@ -35,13 +67,19 @@ public class MarketGUI extends AbstractGUI {
         if (pos == 8) {
 
         }
-        //???判断上页下页？
-        return this;
+
+        if (pos >= 9 && pos <= 44) {
+            refresh();
+        }
+
+
     }
 
     //sell
     @Override
-    public MarketGUI rightClick(Integer pos) {
-        return this;
+    public void rightClick(Integer pos) {
+        if (pos >= 9 && pos <= 44) {
+            refresh();
+        }
     }
 }

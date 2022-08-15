@@ -11,6 +11,4 @@ public class DealRecord {
     public Float costs;
     public Long time;
 
-
-
 }

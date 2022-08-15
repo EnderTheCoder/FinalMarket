@@ -1,9 +1,7 @@
 package dev.ender.finalmarket;
 
-import dev.ender.finalmarket.command.DemoCommand;
 import dev.ender.finalmarket.command.MarketCommand;
 import dev.ender.finalmarket.database.SQLite;
-import dev.ender.finalmarket.gui.AbstractGUI;
 import dev.ender.finalmarket.gui.MarketGUI;
 import dev.ender.finalmarket.task.SaveCache;
 import org.bukkit.Bukkit;

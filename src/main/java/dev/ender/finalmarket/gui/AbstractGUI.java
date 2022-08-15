@@ -9,15 +9,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.A;
 
-import java.net.PortUnreachableException;
 import java.util.HashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.function.ToIntBiFunction;
 
 public abstract class AbstractGUI implements Listener {
 
@@ -27,7 +21,7 @@ public abstract class AbstractGUI implements Listener {
     public Integer size;
     public ItemStack blank;
 
-    public static HashMap<Player, AbstractGUI> GUI = new HashMap();
+    public static HashMap<Player, AbstractGUI> GUI = new HashMap<>();
 
     /**
      * Buttons and their positions.
@@ -62,6 +56,11 @@ public abstract class AbstractGUI implements Listener {
         }
     }
 
+    public void refresh() {
+        this.clean();
+        this.create();
+    }
+
     public AbstractGUI setButton(Integer buttonPos, ItemStack button) {
         buttons.put(buttonPos, button);
         return this;
@@ -86,16 +85,16 @@ public abstract class AbstractGUI implements Listener {
         return this;
     }
 
-    public abstract AbstractGUI leftClick(Integer pos);
+    public abstract void leftClick(Integer pos);
 
-    public abstract AbstractGUI rightClick(Integer pos);
+    public abstract void rightClick(Integer pos);
 
     public void setBlank(ItemStack blankItemStack) {
         this.blank = blankItemStack;
     }
 
     @EventHandler
-    public static void onPlayerClickMarket(InventoryClickEvent event) {
+    public static void onPlayerClickGUI(InventoryClickEvent event) {
         Player p = (Player) event.getWhoClicked();
 
         AbstractGUI gui = GUI.get(p);

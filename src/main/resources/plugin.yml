@@ -10,3 +10,4 @@ commands:
     permission-message: you dont have the permission to open the gui.
     aliases:
       - fmarket
+      - fm

@@ -102,27 +102,27 @@ public class Cache {
         DEAL_RECORDS.put(dealRecord.id , null);
     }
 
-    public void addMarketItem (MarketItem marketItem){
+    public static void addMarketItem (MarketItem marketItem){
         MARKET_ITEMS.put(marketItem.id, marketItem);
     }
 
-    public void addDealRecord(DealRecord dealRecord){
+    public static void addDealRecord(DealRecord dealRecord){
         DEAL_RECORDS.put(dealRecord.id , dealRecord);
     }
 
-    public void getMarketItem(Integer id) {
+    public static void getMarketItem(Integer id) {
         MARKET_ITEMS.get(id);
     }
 
-    public void getDealRecord(Integer id){
+    public static void getDealRecord(Integer id){
         DEAL_RECORDS.get(id);
     }
 
-    public HashMap<Integer, MarketItem> getMarketItems() {
+    public static HashMap<Integer, MarketItem> getMarketItems() {
         return MARKET_ITEMS;
     }
 
-    public HashMap<Integer , DealRecord> getDealRecords(){
+    public static HashMap<Integer , DealRecord> getDealRecords(){
         return DEAL_RECORDS;
     }
 
